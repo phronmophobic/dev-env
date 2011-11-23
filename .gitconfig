@@ -1,5 +1,6 @@
 [core]
 	excludesfile = /Users/adrian/.gitignore
+	editor = emacs
 
 [color]
     ui = auto
@@ -31,6 +32,7 @@
     deladd = !git ls-files -d | xargs git add -u
     newadd = !git ls-files --other --exclude-standard | xargs git add 
     ui = !git ls-files --other --exclude-standard -d -m Resource/UIJson | xargs git add -A
+    sup = submodule update
 [user]
 	name = Adrian Smith
 	email = adrian@brooklynpacket.com
