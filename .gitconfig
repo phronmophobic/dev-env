@@ -27,7 +27,7 @@
     df = diff
     lg = log -p
     ll = log --pretty=oneline --graph --abbrev-commit --decorate --topo-order
-    pu = push origin HEAD
+    pu = push -u origin HEAD
     xib = !git add -u Classes/*xib *.xcodeproj/project.pbxproj
     deladd = !git ls-files -d | xargs git add -u
     newadd = !git ls-files --other --exclude-standard | xargs git add 
