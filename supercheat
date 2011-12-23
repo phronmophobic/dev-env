@@ -1,0 +1,22 @@
+http://apple.stackexchange.com/questions/5435/got-any-tips-or-tricks-for-terminal-in-os-x
+mdfind to use spotlight from the command line
+(Ctrl-X Ctrl-E) edit bash command in your editor
+man -t rsync | open -f -a /Applications/Preview.app
+sips -- scriptable image processing system.
+
+
+disown - make a long running process immune to sighup
+
+^find^replace for example:
+$ /etc/init.d/foo stop
+$ ^stop^start
+
+
+# print unprintable characters
+cat -vte
+
+# change bash field separator
+IFS=`cat` 
+default IFS: space tab newline
+
+rlwrap = awesome readline support to any command line utility
