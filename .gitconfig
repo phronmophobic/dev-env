@@ -1,6 +1,6 @@
 [core]
 	excludesfile = /Users/adrian/.gitignore
-	editor = emacs
+	editor = emacs-23.3
 
 [color]
     ui = auto
