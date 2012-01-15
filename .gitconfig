@@ -1,5 +1,5 @@
 [core]
-	excludesfile = /Users/adriansmith/.gitignore
+	excludesfile = /Users/adriansmith/.global_gitignore
 	editor = emacs-23.3
 
 [color]
