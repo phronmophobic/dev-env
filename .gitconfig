@@ -1,5 +1,5 @@
 [core]
-	excludesfile = /Users/adrian/.gitignore
+	excludesfile = /Users/adriansmith/.gitignore
 	editor = emacs-23.3
 
 [color]
@@ -35,7 +35,7 @@
     sup = submodule update --init
 [user]
 	name = Adrian Smith
-	email = adrian@brooklynpacket.com
+	email = smith.adriane@gmail.com
 
 [diff "csv"]
         wordRegex="[^,]+"
