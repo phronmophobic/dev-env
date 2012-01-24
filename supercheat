@@ -20,3 +20,7 @@ IFS=`cat`
 default IFS: space tab newline
 
 rlwrap = awesome readline support to any command line utility
+
+# screen commands
+screen -r resign -X exec '/bin/echo' 'hey'
+screen -A -m -d -S sessionname command
