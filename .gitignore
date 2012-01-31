@@ -1,13 +1,2 @@
-*.pyc
-.DS_Store
-*.orig
-.svn
-poker.xcodeproj/xcuserdata/
-poker.xcodeproj/project.xcworkspace/
-*~
-2c*#
-.#*
-asdfadsf
-\#*
-TAGS
-*.elc
+# just ignore everything unless i explicitly add it to the project
+*

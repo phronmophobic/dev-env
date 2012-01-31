@@ -1,5 +1,5 @@
 [core]
-	excludesfile = /Users/adrian/.gitignore
+	excludesfile = /Users/adriansmith/.global_gitignore
 	editor = emacs-23.3
 
 [color]
@@ -37,7 +37,7 @@
     amend = commit --amend
 [user]
 	name = Adrian Smith
-	email = adrian@brooklynpacket.com
+	email = smith.adriane@gmail.com
 
 [diff "csv"]
         wordRegex="[^,]+"
