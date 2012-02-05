@@ -23,3 +23,7 @@ rlwrap = awesome readline support to any command line utility
 
 emacs org mode:
 http://orgmode.org/orgcard.txt
+
+# screen commands
+screen -r resign -X exec '/bin/echo' 'hey'
+screen -A -m -d -S sessionname command
