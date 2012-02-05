@@ -20,3 +20,6 @@ IFS=`cat`
 default IFS: space tab newline
 
 rlwrap = awesome readline support to any command line utility
+
+emacs org mode:
+http://orgmode.org/orgcard.txt
