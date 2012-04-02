@@ -35,6 +35,7 @@
     sup = submodule update --init
     ls = ls-files
     amend = commit --amend
+    pr = pull --rebase
 [user]
 	name = Adrian Smith
 	email = smith.adriane@gmail.com
@@ -42,5 +43,3 @@
 [diff "csv"]
         wordRegex="[^,]+"
         xfuncname = "^@keys.*$"
-[branch]
-	autosetuprebase = always
