@@ -27,3 +27,9 @@ http://orgmode.org/orgcard.txt
 # screen commands
 screen -r resign -X exec '/bin/echo' 'hey'
 screen -A -m -d -S sessionname command
+
+
+# moving large files efficiently
+# jetpants / doc / VelocityEurope2011Presentation.pdf
+Destination box: nc -l [port] | pigz -d | tar xvf -
+Source box: tar vc . | pigz | nc [destination hostname] [port]
