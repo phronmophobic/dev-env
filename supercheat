@@ -37,4 +37,7 @@ Serve current directory tree at http://$HOSTNAME:8000/
 # jetpants / doc / VelocityEurope2011Presentation.pdf
 # http://engineering.tumblr.com/post/7658008285/efficiently-copying-files-to-multiple-destinations
 Destination box: nc -l [port] | pigz -d | tar xvf -
+middle box: mkfifo myfifo
+            nc hostname_of_next_box 1234 <myfifo &
+            nc -l 1234 | tee myfifo | pigz -d | tar xvf -
 Source box: tar vc . | pigz | nc [destination hostname] [port]
