@@ -37,7 +37,7 @@
     amend = commit --amend
     pr = pull --rebase
 
-    hotfind = !git tag -l HOTFIX-* | diff hotfix.txt  -
+    hotfind = !touch hotfix.txt && git tag -l HOTFIX-* | diff hotfix.txt  -
     hotsync = !git tag -l HOTFIX* > hotfix.txt
     hottag = "!f() { git tag HOTFIX-`date '+%y%m%d'`-$1 $2; }; f"
 [user]
