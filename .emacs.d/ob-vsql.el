@@ -1,0 +1,238 @@
+
+;;; ob-vsql.el --- org-babel functions for vsql evaluation
+
+;; Copyright (C) your name here
+
+;; Author: your name here
+;; Keywords: literate programming, reproducible research
+;; Homepage: http://orgmode.org
+;; Version: 0.01
+
+;;; License:
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with GNU Emacs; see the file COPYING.  If not, write to the
+;; Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+;; Boston, MA 02110-1301, USA.
+
+;;; Commentary:
+
+;; This file is not intended to ever be loaded by org-babel, rather it
+;; is a template for use in adding new language support to Org-babel.
+;; Good first steps are to copy this file to a file named by the
+;; language you are adding, and then use `query-replace' to replace
+;; all strings of "template" in this file with the name of your new
+;; language.
+;;
+;; If you have questions as to any of the portions of the file defined
+;; below please look to existing language support for guidance.
+;;
+;; If you are planning on adding a language to org-babel we would ask
+;; that if possible you fill out the FSF copyright assignment form
+;; available at http://orgmode.org/request-assign-future.txt as this
+;; will make it possible to include your language support in the core
+;; of Org-mode, otherwise unassigned language support files can still
+;; be included in the contrib/ directory of the Org-mode repository.
+
+;;; Requirements:
+
+;; Use this section to list the requirements of this language.  Most
+;; languages will require that at least the language be installed on
+;; the user's system, and the Emacs major mode relevant to the
+;; language be installed as well.
+
+;;; Code:
+(require 'ob)
+(require 'ob-ref)
+(require 'ob-comint)
+(require 'ob-eval)
+;; possibly require modes required for your language
+
+;; optionally declare default header arguments for this language
+(defvar org-babel-default-header-args:vsql '())
+(require 'shell)
+(eval-when-compile (require 'cl))
+
+(declare-function org-babel-comint-in-buffer "ob-comint" (buffer &rest body))
+(declare-function org-babel-comint-wait-for-output "ob-comint" (buffer))
+(declare-function org-babel-comint-buffer-livep "ob-comint" (buffer))
+(declare-function org-babel-comint-with-output "ob-comint" (meta &rest body))
+(declare-function orgtbl-to-generic "org-table" (table params))
+
+(defvar org-babel-default-header-args:vsql '())
+
+(defvar org-babel-vsql-command "/Users/adrian/Desktop/workspace/verticajava/querywithtotals"
+  "Command used to invoke a shell.
+This will be passed to  `shell-command-on-region'")
+
+(defcustom org-babel-vsql-var-quote-fmt
+  "$(cat <<'BABEL_TABLE'\n%s\nBABEL_TABLE\n)"
+  "Format string used to escape variables when passed to vsqlell scripts."
+  :group 'org-babel
+  :type 'string)
+
+(defun org-babel-execute:vsql (body params)
+  "Execute a block of Vsqlell commands with Babel.
+This function is called by `org-babel-execute-src-block'."
+  (let* ((session (org-babel-vsql-initiate-session
+		   (cdr (assoc :session params))))
+         (result-params (cdr (assoc :result-params params)))
+	 (stdin ((lambda (stdin) (when stdin (org-babel-vsql-var-to-string
+					 (org-babel-ref-resolve stdin))))
+		 (cdr (assoc :stdin params))))
+         (full-body (org-babel-expand-body:generic
+		     body params (org-babel-variable-assignments:vsql params))))
+    (org-babel-reassemble-table
+     (org-babel-vsql-evaluate session full-body result-params stdin)
+     (org-babel-pick-name
+      (cdr (assoc :colname-names params)) (cdr (assoc :colnames params)))
+     (org-babel-pick-name
+      (cdr (assoc :rowname-names params)) (cdr (assoc :rownames params))))))
+
+
+(defun org-babel-expand-body:vsql (body params &optional var-lines)
+  "Expand BODY with PARAMS.
+Expand a block of code with org-babel according to its header
+arguments.  This generic implementation of body expansion is
+called for languages which have not defined their own specific
+org-babel-expand-body:lang function."
+  (let ((body (cond 
+               ((assoc :row-totals params) )
+               (t body))))
+    (mapconcat #'identity (append var-lines (list body)) "\n")))
+
+
+(defun org-babel-prep-session:vsql (session params)
+  "Prepare SESSION according to the header arguments specified in PARAMS."
+  (let* ((session (org-babel-vsql-initiate-session session))
+	 (var-lines (org-babel-variable-assignments:vsql params)))
+    (org-babel-comint-in-buffer session
+      (mapc (lambda (var)
+              (insert var) (comint-send-input nil t)
+              (org-babel-comint-wait-for-output session)) var-lines))
+    session))
+
+(defun org-babel-load-session:vsql (session body params)
+  "Load BODY into SESSION."
+  (save-window-excursion
+    (let ((buffer (org-babel-prep-session:vsql session params)))
+      (with-current-buffer buffer
+        (goto-char (process-mark (get-buffer-process (current-buffer))))
+        (insert (org-babel-chomp body)))
+      buffer)))
+
+;; helper functions
+
+(defun org-babel-variable-assignments:vsql (params)
+  "Return list of vsqlell statements assigning the block's variables"
+  (let ((sep (cdr (assoc :separator params))))
+    (mapcar
+     (lambda (pair)
+       (format "%s=%s"
+	       (car pair)
+	       (org-babel-vsql-var-to-vsql (cdr pair) sep)))
+     (mapcar #'cdr (org-babel-get-header params :var)))))
+
+(defun org-babel-vsql-var-to-vsql (var &optional sep)
+  "Convert an elisp value to a vsql variable.
+Convert an elisp var into a string of vsqlell commands specifying a
+var of the same value."
+  (format org-babel-vsql-var-quote-fmt (org-babel-vsql-var-to-string var sep)))
+
+(defun org-babel-vsql-var-to-string (var &optional sep)
+  "Convert an elisp value to a string."
+  (flet ((echo-var (v) (if (stringp v) v (format "%S" v))))
+    (cond
+     ((and (listp var) (listp (car var)))
+      (orgtbl-to-generic var  (list :sep (or sep "\t") :fmt #'echo-var)))
+     ((listp var)
+      (mapconcat #'echo-var var "\n"))
+     (t (echo-var var)))))
+
+(defun org-babel-vsql-table-or-results (results)
+  "Convert RESULTS to an appropriate elisp value.
+If the results look like a table, then convert them into an
+Emacs-lisp table, otherwise return the results as a string."
+  (org-babel-script-escape results))
+
+(defun org-babel-vsql-initiate-session (&optional session params)
+  "Initiate a session named SESSION according to PARAMS."
+  (when (and session (not (string= session "none")))
+    (save-window-excursion
+      (or (org-babel-comint-buffer-livep session)
+          (progn (vsqlell session) (get-buffer (current-buffer)))))))
+
+(defvar org-babel-vsql-eoe-indicator "echo 'org_babel_vsql_eoe'"
+  "String to indicate that evaluation has completed.")
+(defvar org-babel-vsql-eoe-output "org_babel_vsql_eoe"
+  "String to indicate that evaluation has completed.")
+
+(defun org-babel-vsql-evaluate (session body &optional result-params stdin)
+  "Pass BODY to the Vsqlell process in BUFFER.
+If RESULT-TYPE equals 'output then return a list of the outputs
+of the statements in BODY, if RESULT-TYPE equals 'value then
+return the value of the last statement in BODY."
+  ((lambda (results)
+     (when results
+       (if (or (member "scalar" result-params)
+	       (member "verbatim" result-params)
+	       (member "output" result-params))
+	   results
+	 (let ((tmp-file (org-babel-temp-file "vsql-")))
+	   (with-temp-file tmp-file (insert results))
+	   (org-babel-import-elisp-from-file tmp-file)))))
+   (cond
+    (stdin				; external vsqlell script w/STDIN
+     (let ((script-file (org-babel-temp-file "vsql-script-"))
+	   (stdin-file (org-babel-temp-file "vsql-stdin-")))
+       (with-temp-file script-file (insert body))
+       (with-temp-file stdin-file (insert stdin))
+       (with-temp-buffer
+	 (call-process-vsqlell-command
+	  (format "%s %s" org-babel-vsql-command script-file)
+	  stdin-file
+	  (current-buffer))
+	 (buffer-string))))
+    (session 				; session evaluation
+     (mapconcat
+      #'org-babel-vsql-strip-weird-long-prompt
+      (mapcar
+       #'org-babel-trim
+       (butlast
+	(org-babel-comint-with-output
+	    (session org-babel-vsql-eoe-output t body)
+	  (mapc
+	   (lambda (line)
+	     (insert line)
+	     (comint-send-input nil t)
+	     (while (save-excursion
+		      (goto-char comint-last-input-end)
+		      (not (re-search-forward
+			    comint-prompt-regexp nil t)))
+	       (accept-process-output (get-buffer-process (current-buffer)))))
+	   (append
+	    (split-string (org-babel-trim body) "\n")
+	    (list org-babel-vsql-eoe-indicator))))
+	2)) "\n"))
+    ('otherwise				; external vsqlell script
+     (org-babel-eval org-babel-vsql-command (org-babel-trim body))))))
+
+(defun org-babel-vsql-strip-weird-long-prompt (string)
+  "Remove prompt cruft from a string of vsqlell output."
+  (while (string-match "^% +[\r\n$]+ *" string)
+    (setq string (substring string (match-end 0))))
+  string)
+
+
+(provide 'ob-vsql)
+;;; ob-vsql.el ends here
