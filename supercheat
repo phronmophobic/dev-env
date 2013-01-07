@@ -41,3 +41,7 @@ middle box: mkfifo myfifo
             nc hostname_of_next_box 1234 <myfifo &
             nc -l 1234 | tee myfifo | pigz -d | tar xvf -
 Source box: tar vc . | pigz | nc [destination hostname] [port]
+
+
+# Execute a command without saving it in the history
+<space>command
