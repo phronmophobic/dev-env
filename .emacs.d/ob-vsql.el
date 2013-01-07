@@ -71,7 +71,7 @@
 
 (defvar org-babel-default-header-args:vsql '())
 
-(defvar org-babel-vsql-command "/Users/adrian/Desktop/workspace/verticajava/querywithtotals"
+(defvar org-babel-vsql-command "/Users/adrian/Desktop/workspace/verticajava/runquery"
   "Command used to invoke a shell.
 This will be passed to  `shell-command-on-region'")
 
