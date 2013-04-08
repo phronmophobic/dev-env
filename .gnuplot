@@ -80,6 +80,7 @@ set zlabel "" textcolor rgb text_color font my_font
 
 # set the text color and font for the label
 set label textcolor rgb text_color font my_font
+unset label
 
 # set the color and width of the axis border
 set border 31 lw @my_axis_width lc rgb text_color
