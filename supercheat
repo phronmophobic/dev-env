@@ -43,5 +43,3 @@ middle box: mkfifo myfifo
 Source box: tar vc . | pigz | nc [destination hostname] [port]
 
 
-# Execute a command without saving it in the history
-<space>command
