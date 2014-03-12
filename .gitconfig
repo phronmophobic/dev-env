@@ -47,3 +47,5 @@
 [diff "csv"]
         wordRegex="[^,]+"
         xfuncname = "^@keys.*$"
+[merge]
+	tool = opendiff
