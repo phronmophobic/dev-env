@@ -46,3 +46,6 @@ Source box: tar vc . | pigz | nc [destination hostname] [port]
 
 # builtin mac port scanner
 Network Utility
+
+# This will prevent your Mac from sleeping indefinitely until pmset is no longer running. You can stop pmset from running by hitting Control+C in the same Terminal window.
+pmset noidle
