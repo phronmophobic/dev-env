@@ -146,3 +146,4 @@
       (comment-or-uncomment-region (line-beginning-position) (line-end-position))))
 
 (global-set-key "\M-;" 'comment-dwim-line)
+(global-set-key (kbd "C-x g") 'magit-status)
