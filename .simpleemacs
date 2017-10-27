@@ -129,7 +129,7 @@
      (define-key paredit-mode-map (kbd "C-c )") 'paredit-forward-slurp-sexp)
      ;; (define-key paredit-mode-map (kbd "ESC p") 'paredit-splice-sexp-killing-backward)
      ;; (define-key paredit-mode-map (kbd "ESC n") 'paredit-splice-sexp-killing-forward)
-     (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-square)
+     ;; (define-key paredit-mode-map (kbd "M-[") 'paredit-wrap-square)
      (define-key paredit-mode-map (kbd "M-;") 'comment-dwim-line)))
 
 ;; comment-dwim is toggle comment
