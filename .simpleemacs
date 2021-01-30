@@ -15,8 +15,9 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (require 'package)
-(add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/"))
+ (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+;;(add-to-list 'package-archives
+;;             '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives
              '("melpa" . "https://stable.melpa.org/packages/"))
 
