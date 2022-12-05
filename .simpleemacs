@@ -21,7 +21,7 @@
 (add-to-list 'package-archives
              '("melpa" . "https://stable.melpa.org/packages/"))
 
-(dolist (pkg '(smex cider paredit magit))
+(dolist (pkg '(smex cider paredit magit eldoc))
   (unless (package-installed-p pkg)
     (package-refresh-contents)
     (package-install pkg)))
