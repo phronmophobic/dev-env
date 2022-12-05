@@ -21,6 +21,10 @@
 (add-to-list 'package-archives
              '("melpa" . "https://stable.melpa.org/packages/"))
 
+(dolist (pkg '(smex cider paredit magit))
+  (unless (package-installed-p pkg)
+    (package-refresh-contents)
+    (package-install pkg)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
